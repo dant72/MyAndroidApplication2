@@ -13,6 +13,7 @@
         tools:layout_editor_absoluteY="1dp">
 
         <LinearLayout
+            android:id="@+id/toDoList"
             android:layout_width="match_parent"
             android:layout_height="371dp"
             android:orientation="vertical"></LinearLayout>
@@ -89,7 +90,8 @@
             android:id="@+id/button"
             android:layout_width="152dp"
             android:layout_height="wrap_content"
-            android:text="Add" />
+            android:text="Add"
+            android:onClick="onAddClick" />
 
     </LinearLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>
