@@ -27,15 +27,16 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="Date" />
+                android:text="Time" />
 
             <EditText
-                android:id="@+id/editTextDate3"
+                android:id="@+id/editTextTime"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:ems="10"
-                android:inputType="date" />
+                android:inputType="time" />
+
         </LinearLayout>
 
         <LinearLayout
@@ -57,7 +58,7 @@
                 android:layout_weight="1"
                 android:ems="10"
                 android:inputType="textPersonName"
-                android:text="Name" />
+                android:text="" />
 
         </LinearLayout>
 
@@ -71,7 +72,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="TextView" />
+                android:text="Description" />
 
             <EditText
                 android:id="@+id/editTextTextPersonName2"
@@ -80,9 +81,15 @@
                 android:layout_weight="1"
                 android:ems="10"
                 android:inputType="textPersonName"
-                android:text="Name" />
+                android:text="" />
 
         </LinearLayout>
+
+        <Button
+            android:id="@+id/button"
+            android:layout_width="152dp"
+            android:layout_height="wrap_content"
+            android:text="Add" />
 
     </LinearLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>
