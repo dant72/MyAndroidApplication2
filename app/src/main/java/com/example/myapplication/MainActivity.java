@@ -3,6 +3,9 @@ package com.example.myapplication;
 import android.os.Bundle;
 import android.view.View;
 import android.view.Menu;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import com.google.android.material.snackbar.Snackbar;
@@ -67,6 +70,19 @@ public class MainActivity extends AppCompatActivity {
 
     public void onAddClick(View view) {
 
-        Toast.makeText(this, "working!", Toast.LENGTH_SHORT).show();
+        Button myButton = new Button(this);
+
+
+        EditText time = findViewById(R.id.editTextTime);
+        EditText toDoName = findViewById(R.id.editTextToDoName);
+        EditText description = findViewById(R.id.editTextDescription);
+        myButton.setText(time.getText() + " - " + toDoName.getText());
+
+        LinearLayout ll = findViewById(R.id.toDoList);
+
+        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+        ll.addView(myButton, lp);
+
+        Toast.makeText(this, "add_work!", Toast.LENGTH_SHORT).show();
     }
 }
