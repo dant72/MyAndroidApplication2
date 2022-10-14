@@ -1,6 +1,8 @@
 package com.example.myapplication;
 
+import android.os.Build;
 import android.os.Bundle;
+import android.text.Editable;
 import android.view.View;
 import android.view.Menu;
 import android.widget.Button;
@@ -8,9 +10,11 @@ import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.Toast;
 
+import com.example.myapplication.backend.models.ToDo;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.navigation.NavigationView;
 
+import androidx.annotation.RequiresApi;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
@@ -21,10 +25,15 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.myapplication.databinding.ActivityMainBinding;
 
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.Optional;
+
 public class MainActivity extends AppCompatActivity {
 
     private AppBarConfiguration mAppBarConfiguration;
     private ActivityMainBinding binding;
+    private ArrayList<ToDo> toDoList = new ArrayList<ToDo>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -68,14 +77,36 @@ public class MainActivity extends AppCompatActivity {
                 || super.onSupportNavigateUp();
     }
 
+    public void onToDoItemClick(View view) {
+
+        ToDo toDo = null;
+        Optional<ToDo> item = toDoList.stream().filter(i -> i.id == view.getId()).findFirst();
+
+        if (item.isPresent())
+            Toast.makeText(this, item.get().description + "",Toast.LENGTH_LONG).show();
+        else
+            Toast.makeText(this, view.getId() + "",Toast.LENGTH_LONG).show();
+    }
+
     public void onAddClick(View view) {
-
-        Button myButton = new Button(this);
-
 
         EditText time = findViewById(R.id.editTextTime);
         EditText toDoName = findViewById(R.id.editTextToDoName);
         EditText description = findViewById(R.id.editTextDescription);
+
+        ToDo item = new ToDo(time.getText(), toDoName.getText(), description.getText());
+        toDoList.add(item);
+
+        Button myButton = new Button(this);
+        myButton.setId(item.id);
+        myButton.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View view) {
+                onToDoItemClick(view);
+            }
+        });
+
+
         myButton.setText(time.getText() + " - " + toDoName.getText());
 
         LinearLayout ll = findViewById(R.id.toDoList);
@@ -83,6 +114,6 @@ public class MainActivity extends AppCompatActivity {
         LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
         ll.addView(myButton, lp);
 
-        Toast.makeText(this, "add_work!", Toast.LENGTH_SHORT).show();
+        Toast.makeText(this, toDoName.getText() + " creating!", Toast.LENGTH_SHORT).show();
     }
 }

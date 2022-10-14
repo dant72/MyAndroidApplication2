@@ -1,16 +1,22 @@
 package com.example.myapplication.backend.models;
 
+import android.text.Editable;
+
 import java.util.Date;
 
 public class ToDo {
-    public Date date;
-    public String name;
-    public String description;
+    public int id;
+    public Editable time;
+    public Editable name;
+    public Editable description;
 
-    public ToDo(Date date, String name, String description)
+    public ToDo(Editable time, Editable name, Editable description)
     {
-        this.date = date;
+        this.time = time;
         this.name = name;
         this.description = description;
+        id = currentId++;
     }
+
+    private static int currentId = 0;
 }
