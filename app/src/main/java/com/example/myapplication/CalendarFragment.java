@@ -7,6 +7,15 @@ import androidx.fragment.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.LinearLayout;
+import android.widget.Toast;
+
+import com.example.myapplication.backend.models.ToDo;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -15,6 +24,7 @@ import android.view.ViewGroup;
  */
 public class CalendarFragment extends Fragment {
 
+    private ArrayList<ToDo> toDoList = new ArrayList<ToDo>();
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
@@ -43,6 +53,9 @@ public class CalendarFragment extends Fragment {
         args.putString(ARG_PARAM1, param1);
         args.putString(ARG_PARAM2, param2);
         fragment.setArguments(args);
+
+
+
         return fragment;
     }
 
@@ -58,7 +71,44 @@ public class CalendarFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_calendar, container, false);
+
+        View view = inflater.inflate(R.layout.fragment_calendar, container, false);
+
+        List<ToDo> toDoList = ToDo.listAll(ToDo.class);
+        if (!toDoList.isEmpty())
+            toDoList.forEach(i -> createElement(view, i));
+
+
+        return view;
+    }
+
+    public void createElement(View view, ToDo item)
+    {
+        Button myButton = new Button(getContext());
+        myButton.setId(item.getId().intValue());
+        myButton.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View view) {
+                onToDoItemClick(view);
+            }
+        });
+
+
+        myButton.setText(item.getTime() + " - " + item.getName());
+
+        LinearLayout ll = view.findViewById(R.id.toDoList);
+
+        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+        ll.addView(myButton, lp);
+
+    }
+
+    public void onToDoItemClick(View view) {
+        ToDo item = ToDo.findById(ToDo.class, view.getId());
+
+        if (item != null)
+            Toast.makeText(getContext(), item.getDescription() + "",Toast.LENGTH_LONG).show();
+        else
+            Toast.makeText(getContext(), view.getId() + "",Toast.LENGTH_LONG).show();
     }
 }

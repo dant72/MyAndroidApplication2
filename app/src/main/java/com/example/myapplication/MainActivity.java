@@ -27,6 +27,7 @@ import com.example.myapplication.databinding.ActivityMainBinding;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.Optional;
 
 public class MainActivity extends AppCompatActivity {
@@ -80,25 +81,22 @@ public class MainActivity extends AppCompatActivity {
     public void onToDoItemClick(View view) {
 
         ToDo toDo = null;
-        Optional<ToDo> item = toDoList.stream().filter(i -> i.id == view.getId()).findFirst();
+        Optional<ToDo> item = toDoList.stream().filter(i -> i.getId() == view.getId()).findFirst();
 
         if (item.isPresent())
-            Toast.makeText(this, item.get().description + "",Toast.LENGTH_LONG).show();
+            Toast.makeText(this, item.get().getDescription() + "", Toast.LENGTH_LONG).show();
         else
-            Toast.makeText(this, view.getId() + "",Toast.LENGTH_LONG).show();
+            Toast.makeText(this, view.getId() + "", Toast.LENGTH_LONG).show();
     }
 
-    public void onAddClick(View view) {
 
-        EditText time = findViewById(R.id.editTextTime);
-        EditText toDoName = findViewById(R.id.editTextToDoName);
-        EditText description = findViewById(R.id.editTextDescription);
-
-        ToDo item = new ToDo(time.getText(), toDoName.getText(), description.getText());
-        toDoList.add(item);
+    void createElement(String time, String toDoName, String description)
+    {
+        ToDo item = new ToDo(time, toDoName, description);
+        item.save();
 
         Button myButton = new Button(this);
-        myButton.setId(item.id);
+        myButton.setId(item.getId().intValue());
         myButton.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View view) {
@@ -107,13 +105,22 @@ public class MainActivity extends AppCompatActivity {
         });
 
 
-        myButton.setText(time.getText() + " - " + toDoName.getText());
+        myButton.setText(time + " - " + toDoName);
 
         LinearLayout ll = findViewById(R.id.toDoList);
 
         LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
         ll.addView(myButton, lp);
 
-        Toast.makeText(this, toDoName.getText() + " creating!", Toast.LENGTH_SHORT).show();
+        Toast.makeText(this, toDoName + " creating!", Toast.LENGTH_SHORT).show();
+    }
+
+    public void onAddClick(View view) {
+
+        EditText time = findViewById(R.id.editTextTime);
+        EditText toDoName = findViewById(R.id.editTextToDoName);
+        EditText description = findViewById(R.id.editTextDescription);
+
+        createElement(time.getText().toString(), toDoName.getText().toString(), description.getText().toString());
     }
 }

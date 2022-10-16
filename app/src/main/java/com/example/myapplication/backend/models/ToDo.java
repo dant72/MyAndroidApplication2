@@ -2,21 +2,35 @@ package com.example.myapplication.backend.models;
 
 import android.text.Editable;
 
-import java.util.Date;
+import com.orm.SugarRecord;
 
-public class ToDo {
-    public int id;
-    public Editable time;
-    public Editable name;
-    public Editable description;
+public class ToDo extends SugarRecord {
 
-    public ToDo(Editable time, Editable name, Editable description)
+
+    String time;
+    String name;
+    String description;
+
+    public ToDo()
+    {
+    }
+
+    public ToDo(String time, String name, String description)
     {
         this.time = time;
         this.name = name;
         this.description = description;
-        id = currentId++;
     }
 
-    private static int currentId = 0;
+    public String getDescription() {
+        return description;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public String getTime() {
+        return time;
+    }
 }
