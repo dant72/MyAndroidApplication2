@@ -20,5 +20,9 @@
             android:id="@+id/nav_calendar"
             android:icon="@drawable/ic_menu_slideshow"
             android:title="@string/menu_calendar" />
+        <item
+            android:id="@+id/tagGameFragment"
+            android:icon="@drawable/ic_menu_slideshow"
+            android:title="@string/menu_tag_game" />
     </group>
 </menu>
