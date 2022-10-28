@@ -12,6 +12,8 @@ import androidx.fragment.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.Button;
 import android.widget.GridLayout;
 import android.widget.Toast;
@@ -55,13 +57,14 @@ public class TagGameFragment extends Fragment {
             return;
         Button myButton = new MyButton(getContext(), i, j);
         grid[i][j] = myButton;
-
+        final Animation animAlpha = AnimationUtils.loadAnimation(getActivity(), R.anim.alfa);
         myButton.setOnClickListener(new View.OnClickListener() {
 
         @Override
         public void onClick(View view) {
 
             MyButton button = (MyButton) view;
+            boolean isAnim = true;
 
             if (button.row  > 0 && grid[button.row - 1][button.column] == null) {
                 moveTo(button, button.row - 1, button.column);
@@ -78,7 +81,11 @@ public class TagGameFragment extends Fragment {
             {
                 moveTo(button, button.row, button.column - 1);
             }
+            else
+                isAnim = false;
 
+            if (isAnim)
+                view.startAnimation(animAlpha);
             Toast.makeText(getContext(), view.getId() + "",Toast.LENGTH_SHORT).show();
         }
     });
@@ -107,9 +114,9 @@ public class TagGameFragment extends Fragment {
                 GridLayout.spec(toRow, GridLayout.CENTER),
                 GridLayout.spec(toColumn, GridLayout.CENTER));
 
+
         grid[toRow][toColumn] = button;
         grid[button.row][button.column] = null;
-
         button.setLayoutParams(lp);
     }
 
