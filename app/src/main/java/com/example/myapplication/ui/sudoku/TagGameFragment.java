@@ -29,6 +29,7 @@ public class TagGameFragment extends Fragment {
     public static TagGameFragment newInstance() {
         return new TagGameFragment();
     }
+    private MyButton EmptyButton = null;
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
@@ -53,10 +54,17 @@ public class TagGameFragment extends Fragment {
 
     public void createElement(View view, int i, int j)
     {
-        if (i == 0 && j == 0)
-            return;
-        Button myButton = new MyButton(getContext(), i, j);
+        //if (i == 0 && j == 0)
+            //return;
+        MyButton myButton = new MyButton(getContext(), i, j);
+
         grid[i][j] = myButton;
+        if (i == 0 && j == 0) {
+            myButton.setVisibility(View.GONE);
+            EmptyButton = myButton;
+            grid[i][j] = null;
+        }
+
         final Animation animAlpha = AnimationUtils.loadAnimation(getActivity(), R.anim.alfa);
         myButton.setOnClickListener(new View.OnClickListener() {
 
@@ -64,29 +72,26 @@ public class TagGameFragment extends Fragment {
         public void onClick(View view) {
 
             MyButton button = (MyButton) view;
-            boolean isAnim = true;
 
-            if (button.row  > 0 && grid[button.row - 1][button.column] == null) {
-                moveTo(button, button.row - 1, button.column);
-            }
-            else if (button.row < rows - 1 && grid[button.row + 1][button.column] == null)
+            if (Math.abs(button.row - EmptyButton.row) == 1 && button.column == EmptyButton.column
+                    || Math.abs(button.column - EmptyButton.column) == 1 && button.row == EmptyButton.row)
             {
-                moveTo(button, button.row + 1, button.column);
-            }
-            else if (button.column < columns - 1 && grid[button.row][button.column + 1] == null)
-            {
-                moveTo(button, button.row, button.column + 1);
-            }
-            else if (button.column > 0 && grid[button.row][button.column - 1] == null)
-            {
-                moveTo(button, button.row, button.column - 1);
-            }
-            else
-                isAnim = false;
+                int tmpRow = button.row;
+                button.row = EmptyButton.row;
+                EmptyButton.row = tmpRow;
 
-            if (isAnim)
+                int tmpColumn = button.column;
+                button.column = EmptyButton.column;
+                EmptyButton.column = tmpColumn;
+
+                ViewGroup.LayoutParams tmp = button.getLayoutParams();
+                button.setLayoutParams(EmptyButton.getLayoutParams());
+                EmptyButton.setLayoutParams(tmp);
+
                 view.startAnimation(animAlpha);
-            Toast.makeText(getContext(), view.getId() + "",Toast.LENGTH_SHORT).show();
+            }
+
+            Toast.makeText(getContext(), "Empty " + EmptyButton.row + " " + EmptyButton.column + " target " + button.row + " " + button.column,Toast.LENGTH_LONG).show();
         }
     });
 
@@ -105,19 +110,37 @@ public class TagGameFragment extends Fragment {
 
     public void onToDoItemClick(View view) {
         //ToDo item = ToDo.findById(ToDo.class, view.getId());
-        Toast.makeText(getContext(), view.getId() + "",Toast.LENGTH_LONG).show();
+        Toast.makeText(getContext(), view.getId() + "",Toast.LENGTH_SHORT).show();
     }
+
 
     private void moveTo(MyButton button, int toRow, int toColumn)
     {
-        GridLayout.LayoutParams lp = new GridLayout.LayoutParams(
+        GridLayout.LayoutParams oldLp = new GridLayout.LayoutParams(
+            GridLayout.spec(button.row, GridLayout.CENTER),
+            GridLayout.spec(button.column, GridLayout.CENTER));
+
+        GridLayout.LayoutParams newLp = new GridLayout.LayoutParams(
                 GridLayout.spec(toRow, GridLayout.CENTER),
                 GridLayout.spec(toColumn, GridLayout.CENTER));
 
 
         grid[toRow][toColumn] = button;
         grid[button.row][button.column] = null;
-        button.setLayoutParams(lp);
+
+
+
+        Button b = new Button(getContext());
+        b.setLayoutParams(newLp);
+        int newTop = b.getTop();
+        int newLeft = b.getLeft();
+
+        //b.setLayoutParams(newLp);
+        //button.animate().x(newLeft).y(newTop).setDuration(400);
+        //button.setLayoutParams(newLp);
+
+        //button.animate().x(newLeft).y(newTop).setDuration(400);
+        //button.setLayoutParams(newLp);
     }
 
 }
