@@ -3,6 +3,7 @@ package com.example.myapplication.ui.sudoku;
 
 import androidx.lifecycle.ViewModelProvider;
 
+import android.graphics.Color;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -12,6 +13,7 @@ import androidx.fragment.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewPropertyAnimator;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.Button;
@@ -54,13 +56,13 @@ public class TagGameFragment extends Fragment {
 
     public void createElement(View view, int i, int j)
     {
-        //if (i == 0 && j == 0)
-            //return;
         MyButton myButton = new MyButton(getContext(), i, j);
 
         grid[i][j] = myButton;
         if (i == 0 && j == 0) {
-            myButton.setVisibility(View.GONE);
+            //myButton.setVisibility(View.GONE);
+            myButton.getBackground().setAlpha(0);
+            myButton.setTextColor(Color.TRANSPARENT);
             EmptyButton = myButton;
             grid[i][j] = null;
         }
@@ -70,12 +72,14 @@ public class TagGameFragment extends Fragment {
 
         @Override
         public void onClick(View view) {
-
+            Toast.makeText(getContext(), "Empty " + EmptyButton.getX() + ":" + EmptyButton.getY(),Toast.LENGTH_SHORT).show();
             MyButton button = (MyButton) view;
 
             if (Math.abs(button.row - EmptyButton.row) == 1 && button.column == EmptyButton.column
                     || Math.abs(button.column - EmptyButton.column) == 1 && button.row == EmptyButton.row)
             {
+                ViewPropertyAnimator animator = button.animate().x(EmptyButton.getX()).y(EmptyButton.getY()).setDuration(400);
+
                 int tmpRow = button.row;
                 button.row = EmptyButton.row;
                 EmptyButton.row = tmpRow;
@@ -88,10 +92,8 @@ public class TagGameFragment extends Fragment {
                 button.setLayoutParams(EmptyButton.getLayoutParams());
                 EmptyButton.setLayoutParams(tmp);
 
-                view.startAnimation(animAlpha);
             }
 
-            Toast.makeText(getContext(), "Empty " + EmptyButton.row + " " + EmptyButton.column + " target " + button.row + " " + button.column,Toast.LENGTH_LONG).show();
         }
     });
 
