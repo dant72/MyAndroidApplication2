@@ -15,9 +15,6 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.ViewPropertyAnimator;
-import android.view.animation.Animation;
-import android.view.animation.AnimationUtils;
 import android.widget.Button;
 import android.widget.GridLayout;
 import android.widget.Toast;
@@ -26,7 +23,6 @@ import com.example.myapplication.MyButton;
 import com.example.myapplication.R;
 
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.locks.Lock;
@@ -41,8 +37,9 @@ public class TagGameFragment extends Fragment {
         return new TagGameFragment();
     }
     private MyButton EmptyButton = null;
-    private MyButton LastMove = null;
+    private MyButton lastMove = null;
     private final Lock lock = new ReentrantLock();
+    private  GridLayout gridLayout = null;
 
     Timer timer = new Timer();
 
@@ -51,51 +48,48 @@ public class TagGameFragment extends Fragment {
                              @Nullable Bundle savedInstanceState) {
        View view = inflater.inflate(R.layout.fragment_tag_game, container, false);
 
+        gridLayout = view.findViewById(R.id.table);
        // List<ToDo> toDoList = ToDo.listAll(ToDo.class);
         for (int i = 0; i < rows; i++)
             for (int j = 0; j < columns; j++)
                 createElement(view, i, j);
 
+        DrawView();
+
         Button b = (Button)view.findViewById(R.id.startGameButton);
         b.setText("start");
+
+        Handler h = new Handler();
+
+        TimerTask timerTask  = new TimerTask() {
+            @Override
+            public void run() {
+
+                h.post(new Runnable() {
+
+                    public void run() {
+                        MyButton b = (MyButton) getNextRandomButton();
+
+                        b.callOnClick();
+
+                    }
+                });
+            }
+        };
         b.setOnClickListener(new View.OnClickListener() {
 
-            Handler h = new Handler();
+
 
             @Override
             public void onClick(View v) {
                 Button b = (Button) v;
                 if (b.getText() == "start") {
-                    timer.schedule(new TimerTask() {
-                        @Override
-                        public void run() {
-                            //use a handler to run a toast that shows the current timestamp
-                            lock.lock();
-                            h.post(new Runnable() {
-
-                                public void run() {
-                                    MyButton b = (MyButton) getNextRandomButton();
-
-                                    lock.lock();
-                                    if (b != null) {
-                                        b.callOnClick();
-                                        Log.d("Move", b.row + " : " + b.column + " , Empty: " + EmptyButton.row + " : " + EmptyButton.column);
-                                    }
-                                    else {
-                                        Log.d("Move","Button is null");
-                                    }
-                                    lock.unlock();
-                                }
-
-                            });
-                            lock.unlock();
-                        }
-                    }, 100, 500);
+                    timer.schedule(timerTask, 100, 500);
                     b.setText("stop");
                 }
                 else
                 {
-                    timer.cancel();
+                    timer.purge();
                     b.setText("start");
                 }
             }
@@ -104,6 +98,18 @@ public class TagGameFragment extends Fragment {
 
 
        return view;
+    }
+
+    private void DrawView()
+    {
+        gridLayout.removeAllViews();
+        for (int i = 0; i < rows; i++)
+            for (int j = 0; j < columns; j++) {
+                GridLayout.LayoutParams lp = new GridLayout.LayoutParams(
+                        GridLayout.spec(i, GridLayout.CENTER),
+                        GridLayout.spec(j, GridLayout.CENTER));
+                gridLayout.addView(grid[i][j], lp);
+            }
     }
 
 
@@ -121,6 +127,15 @@ public class TagGameFragment extends Fragment {
         // TODO: Use the ViewModel
     }
 
+    private int findButton(Button button)
+    {
+        for (int i = 0;  i < rows; i++)
+            for (int j = 0; j < columns; j++)
+                if (grid[i][j] == button)
+                    return i * rows + j;
+                return -1;
+    }
+
     public void createElement(View view, int i, int j)
     {
         MyButton myButton = new MyButton(getContext(), i, j);
@@ -130,70 +145,59 @@ public class TagGameFragment extends Fragment {
             myButton.getBackground().setAlpha(0);
             myButton.setTextColor(Color.TRANSPARENT);
             EmptyButton = myButton;
-            grid[i][j] = null;
         }
 
         myButton.setOnClickListener(new View.OnClickListener() {
 
         @Override
         public void onClick(View view) {
-            //Toast.makeText(getContext(), "Empty " + EmptyButton.getX() + ":" + EmptyButton.getY(),Toast.LENGTH_SHORT).show();
             MyButton button = (MyButton) view;
+            int buttonIndex = findButton(button);
+            int EmptyButtonIndex = findButton(EmptyButton);
 
-            if (Math.abs(button.row - EmptyButton.row) == 1 && button.column == EmptyButton.column
-                    || Math.abs(button.column - EmptyButton.column) == 1 && button.row == EmptyButton.row)
+            int iButton = buttonIndex / rows;
+            int jButton = buttonIndex % columns;
+
+            int iEmptyButton = EmptyButtonIndex / rows;
+            int jEmptyButton = EmptyButtonIndex % columns;
+
+
+
+            if (Math.abs(iButton - iEmptyButton) == 1 && jButton == jEmptyButton
+                    || Math.abs(jButton - jEmptyButton) == 1 && iButton == iEmptyButton)
             {
+                grid[iButton][jButton] = EmptyButton;
+                grid[iEmptyButton][jEmptyButton] = button;
+                lastMove = button;
 
-                int tmpRow = button.row;
-                button.row = EmptyButton.row;
-                EmptyButton.row = tmpRow;
-
-                int tmpColumn = button.column;
-                button.column = EmptyButton.column;
-                EmptyButton.column = tmpColumn;
-
-                ViewGroup.LayoutParams tmp = button.getLayoutParams();
-                button.setLayoutParams(EmptyButton.getLayoutParams());
-                EmptyButton.setLayoutParams(tmp);
-
-
-                LastMove = button;
-
-                //button.animate().x(EmptyButton.getX()).y(EmptyButton.getY()).setDuration(200);
-
+                DrawView();
             }
-
         }
     });
 
-
         myButton.setText((i * 9 + j) + " ");
         myButton.setId(i * 9 + j);
-
-        GridLayout ll = view.findViewById(R.id.table);
-
-        GridLayout.LayoutParams lp = new GridLayout.LayoutParams(
-                                      GridLayout.spec(i, GridLayout.CENTER),
-                                      GridLayout.spec(j, GridLayout.CENTER));
-        ll.addView(myButton, lp);
 
     }
 
     private synchronized Button getNextRandomButton()
     {
+        ArrayList<Button> possibleMove = new ArrayList();
+        int EmptyButtonIndex = findButton(EmptyButton);
 
-        ArrayList<Button> possibleMove = new ArrayList<Button>();
-        if (EmptyButton.row > 0)
-            possibleMove.add(grid[EmptyButton.row - 1][EmptyButton.column]);
-        if (EmptyButton.row < rows - 2)
-            possibleMove.add(grid[EmptyButton.row + 1][EmptyButton.column]);
-        if (EmptyButton.column > 0)
-            possibleMove.add(grid[EmptyButton.row][EmptyButton.column - 1]);
-        if (EmptyButton.column < columns - 2)
-            possibleMove.add(grid[EmptyButton.row][EmptyButton.column + 1]);
+        int iEmptyButton = EmptyButtonIndex / rows;
+        int jEmptyButton = EmptyButtonIndex % columns;
 
-        //possibleMove.remove(LastMove);
+        if (iEmptyButton > 0)
+            possibleMove.add(grid[iEmptyButton - 1][jEmptyButton]);
+        if (iEmptyButton < rows - 2)
+            possibleMove.add(grid[iEmptyButton + 1][jEmptyButton]);
+        if (jEmptyButton > 0)
+            possibleMove.add(grid[iEmptyButton][jEmptyButton - 1]);
+        if (jEmptyButton < columns - 2)
+            possibleMove.add(grid[iEmptyButton][jEmptyButton + 1]);
 
+        possibleMove.remove(lastMove);
         int index = rnd(possibleMove.size() - 1);
 
         return possibleMove.get(index);
