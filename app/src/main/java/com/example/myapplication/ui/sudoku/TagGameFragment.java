@@ -3,6 +3,7 @@ package com.example.myapplication.ui.sudoku;
 
 import androidx.lifecycle.ViewModelProvider;
 
+import android.app.AlertDialog;
 import android.graphics.Color;
 import android.os.Bundle;
 
@@ -78,8 +79,6 @@ public class TagGameFragment extends Fragment {
         };
         b.setOnClickListener(new View.OnClickListener() {
 
-
-
             @Override
             public void onClick(View v) {
                 Button b = (Button) v;
@@ -89,13 +88,12 @@ public class TagGameFragment extends Fragment {
                 }
                 else
                 {
-                    timer.purge();
+                    timer.cancel();
                     b.setText("start");
+                    b.setVisibility(View.GONE);
                 }
             }
         });
-
-
 
        return view;
     }
@@ -172,12 +170,30 @@ public class TagGameFragment extends Fragment {
 
                 DrawView();
             }
+
+            if (checkGameOver())
+            {
+                new AlertDialog.Builder(getContext())
+                        .setTitle("Game Over")
+                        .setMessage("You win!")
+                        .show();
+            }
         }
     });
 
-        myButton.setText((i * 9 + j) + " ");
-        myButton.setId(i * 9 + j);
+        myButton.setText((i * rows + j) + " ");
+        myButton.setId(i * rows + j);
 
+    }
+
+    private boolean checkGameOver()
+    {
+        for (int i = 0; i < rows; i++)
+            for (int j = 0; j < columns; j++)
+                if (grid[i][j].getId() != i * rows + j)
+                    return false;
+
+        return true;
     }
 
     private synchronized Button getNextRandomButton()
