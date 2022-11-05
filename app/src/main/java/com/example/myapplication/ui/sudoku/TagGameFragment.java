@@ -13,6 +13,7 @@ import androidx.fragment.app.Fragment;
 
 import android.os.Handler;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -40,7 +41,8 @@ public class TagGameFragment extends Fragment {
     private MyButton EmptyButton = null;
     private MyButton lastMove = null;
     private final Lock lock = new ReentrantLock();
-    private  GridLayout gridLayout = null;
+    private GridLayout gridLayout = null;
+    private boolean isPlayerPush = false;
 
     Timer timer = new Timer();
 
@@ -83,7 +85,8 @@ public class TagGameFragment extends Fragment {
             public void onClick(View v) {
                 Button b = (Button) v;
                 if (b.getText() == "start") {
-                    timer.schedule(timerTask, 100, 500);
+                    timer = new Timer();
+                    timer.schedule(timerTask, 100, 100);
                     b.setText("stop");
                 }
                 else
@@ -105,7 +108,10 @@ public class TagGameFragment extends Fragment {
             for (int j = 0; j < columns; j++) {
                 GridLayout.LayoutParams lp = new GridLayout.LayoutParams(
                         GridLayout.spec(i, GridLayout.CENTER),
-                        GridLayout.spec(j, GridLayout.CENTER));
+                        GridLayout.spec(j, GridLayout.CENTER)
+                );
+                lp.setGravity(Gravity.FILL);
+                lp.setMargins(1, 1, 1, 1);
                 gridLayout.addView(grid[i][j], lp);
             }
     }
@@ -137,6 +143,8 @@ public class TagGameFragment extends Fragment {
     public void createElement(View view, int i, int j)
     {
         MyButton myButton = new MyButton(getContext(), i, j);
+        myButton.setBackgroundColor(R.style.MyButtonStyle);
+        myButton.setTextAppearance(R.style.MyButtonStyle);
 
         grid[i][j] = myButton;
         if (i == 0 && j == 0) {
@@ -177,6 +185,9 @@ public class TagGameFragment extends Fragment {
                         .setTitle("Game Over")
                         .setMessage("You win!")
                         .show();
+
+                //Button b = (Button)view.findViewById(R.id.startGameButton);
+                //b.setVisibility(View.VISIBLE);
             }
         }
     });
@@ -206,11 +217,11 @@ public class TagGameFragment extends Fragment {
 
         if (iEmptyButton > 0)
             possibleMove.add(grid[iEmptyButton - 1][jEmptyButton]);
-        if (iEmptyButton < rows - 2)
+        if (iEmptyButton < rows - 1)
             possibleMove.add(grid[iEmptyButton + 1][jEmptyButton]);
         if (jEmptyButton > 0)
             possibleMove.add(grid[iEmptyButton][jEmptyButton - 1]);
-        if (jEmptyButton < columns - 2)
+        if (jEmptyButton < columns - 1)
             possibleMove.add(grid[iEmptyButton][jEmptyButton + 1]);
 
         possibleMove.remove(lastMove);
