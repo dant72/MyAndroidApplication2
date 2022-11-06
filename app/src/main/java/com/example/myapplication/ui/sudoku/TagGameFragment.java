@@ -3,14 +3,17 @@ package com.example.myapplication.ui.sudoku;
 
 import androidx.lifecycle.ViewModelProvider;
 
+import android.animation.Animator;
 import android.app.AlertDialog;
 import android.graphics.Color;
+import android.icu.util.Calendar;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
+import android.os.CountDownTimer;
 import android.os.Handler;
 import android.util.Log;
 import android.view.Gravity;
@@ -24,7 +27,9 @@ import android.widget.Toast;
 import com.example.myapplication.MyButton;
 import com.example.myapplication.R;
 
+import java.sql.Time;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.locks.Lock;
@@ -38,13 +43,17 @@ public class TagGameFragment extends Fragment {
     public static TagGameFragment newInstance() {
         return new TagGameFragment();
     }
-    private MyButton EmptyButton = null;
-    private MyButton lastMove = null;
+    private Button EmptyButton = null;
+    private Button lastMove = null;
     private final Lock lock = new ReentrantLock();
     private GridLayout gridLayout = null;
     private boolean isPlayerPush = false;
+    private Date beginTime = new Date();
+    private Date endTime = new Date();
+    int countSteps = 0;
+    private boolean isUser = true;
 
-    Timer timer = new Timer();
+    CountDownTimer waitTimer;
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
@@ -85,13 +94,37 @@ public class TagGameFragment extends Fragment {
             public void onClick(View v) {
                 Button b = (Button) v;
                 if (b.getText() == "start") {
-                    timer = new Timer();
-                    timer.schedule(timerTask, 100, 100);
-                    b.setText("stop");
+                    isUser = false;
+
+
+
+                    waitTimer = new CountDownTimer(1000, 100) {
+
+                        public void onTick(long millisUntilFinished) {
+                            MyButton b = (MyButton) getNextRandomButton();
+                            b.callOnClick();
+                        }
+
+                        public void onFinish() {
+                            //After 60000 milliseconds (60 sec) finish current
+                            //if you would like to execute something when time finishes
+                            beginTime = Calendar.getInstance().getTime();
+                            countSteps = 0;
+                            isUser = true;
+                            b.setVisibility(View.GONE);
+
+                        }
+                    }.start();
+
+                    b.setVisibility(View.GONE);
+                    //timer = new Timer();
+                    //timer.schedule(timerTask, 100, 100);
+                    //b.setText("stop");
+                    b.setVisibility(View.GONE);
                 }
                 else
                 {
-                    timer.cancel();
+                    //timer.cancel();
                     b.setText("start");
                     b.setVisibility(View.GONE);
                 }
@@ -140,6 +173,24 @@ public class TagGameFragment extends Fragment {
                 return -1;
     }
 
+    /*private synchronized void swapButtons(Button button1, Button button2)
+    {
+        int buttonIndex = findButton(button1);
+        int EmptyButtonIndex = findButton(button2);
+
+        int iButton1 = buttonIndex / rows;
+        int jButton1 = buttonIndex % columns;
+
+        int iButton2 = EmptyButtonIndex / rows;
+        int jButton2 = EmptyButtonIndex % columns;
+
+        grid[iButton1][jButton1] = button2;
+        grid[iButton2][jButton2] = button1;
+        lastMove = button1;
+        DrawView();
+    }*/
+
+
     public void createElement(View view, int i, int j)
     {
         MyButton myButton = new MyButton(getContext(), i, j);
@@ -156,7 +207,7 @@ public class TagGameFragment extends Fragment {
         myButton.setOnClickListener(new View.OnClickListener() {
 
         @Override
-        public void onClick(View view) {
+        public synchronized void onClick(View view) {
             MyButton button = (MyButton) view;
             int buttonIndex = findButton(button);
             int EmptyButtonIndex = findButton(EmptyButton);
@@ -172,24 +223,35 @@ public class TagGameFragment extends Fragment {
             if (Math.abs(iButton - iEmptyButton) == 1 && jButton == jEmptyButton
                     || Math.abs(jButton - jEmptyButton) == 1 && iButton == iEmptyButton)
             {
-                grid[iButton][jButton] = EmptyButton;
-                grid[iEmptyButton][jEmptyButton] = button;
-                lastMove = button;
 
-                DrawView();
+                    grid[iButton][jButton] = EmptyButton;
+                    grid[iEmptyButton][jEmptyButton] = button;
+                    lastMove = button;
+
+                    DrawView();
+
+            if (isUser)
+            {
+                countSteps++;
             }
 
             if (checkGameOver())
             {
+                endTime = Calendar.getInstance().getTime();
+
+                long delta = endTime.getTime() - beginTime.getTime();
+
+                Time time = new Time(delta);
+
                 new AlertDialog.Builder(getContext())
                         .setTitle("Game Over")
-                        .setMessage("You win!")
+                        .setMessage("You win! \nTime spent: " + time + "\nCount: " + countSteps)
                         .show();
 
-                //Button b = (Button)view.findViewById(R.id.startGameButton);
-                //b.setVisibility(View.VISIBLE);
+                Button b = (Button)getView().findViewById(R.id.startGameButton);
+                b.setVisibility(View.VISIBLE);
             }
-        }
+        }}
     });
 
         myButton.setText((i * rows + j) + " ");
