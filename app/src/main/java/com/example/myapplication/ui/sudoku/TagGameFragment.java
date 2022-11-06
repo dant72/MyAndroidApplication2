@@ -38,7 +38,7 @@ import java.util.concurrent.locks.ReentrantLock;
 public class TagGameFragment extends Fragment {
 
     private TagGameViewModel mViewModel;
-    private final int rows = 4, columns = 4;
+    private final int rows = 3, columns = 3;
     private Button grid[][] = new Button[rows][columns];
     public static TagGameFragment newInstance() {
         return new TagGameFragment();
@@ -98,7 +98,7 @@ public class TagGameFragment extends Fragment {
 
 
 
-                    waitTimer = new CountDownTimer(1000, 100) {
+                    waitTimer = new CountDownTimer(200, 100) {
 
                         public void onTick(long millisUntilFinished) {
                             MyButton b = (MyButton) getNextRandomButton();
@@ -235,7 +235,7 @@ public class TagGameFragment extends Fragment {
                 countSteps++;
             }
 
-            if (checkGameOver())
+            if (isUser && checkGameOver())
             {
                 endTime = Calendar.getInstance().getTime();
 
