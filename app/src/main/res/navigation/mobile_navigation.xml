@@ -34,6 +34,11 @@
     <fragment
         android:id="@+id/tagGameFragment"
         android:name="com.example.myapplication.ui.sudoku.TagGameFragment"
-        android:label="Tag Game"
+        android:label="Puzzle"
         tools:layout="@layout/fragment_tag_game" />
+    <fragment
+        android:id="@+id/PuzzleRecordsFragment"
+        android:name="com.example.myapplication.ui.PuzzleRecordsFragment"
+        android:label="Puzzle Records"
+        tools:layout="@layout/fragment_puzzle_records" />
 </navigation>
