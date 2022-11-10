@@ -26,6 +26,8 @@ import android.widget.Toast;
 
 import com.example.myapplication.MyButton;
 import com.example.myapplication.R;
+import com.example.myapplication.backend.models.PuzzleRecord;
+import com.example.myapplication.backend.models.ToDo;
 
 import java.sql.Time;
 import java.util.ArrayList;
@@ -242,14 +244,19 @@ public class TagGameFragment extends Fragment {
                 long delta = endTime.getTime() - beginTime.getTime();
 
                 Time time = new Time(delta);
+                Date date = Calendar.getInstance().getTime();
 
                 new AlertDialog.Builder(getContext())
                         .setTitle("Game Over")
-                        .setMessage("You win! \nTime spent: " + time + "\nCount: " + countSteps)
+                        .setMessage("You win! \nTime spent: " + time + "\nCount: " + countSteps + "\nDate: " + date)
                         .show();
 
                 Button b = (Button)getView().findViewById(R.id.startGameButton);
                 b.setVisibility(View.VISIBLE);
+
+                //PuzzleRecord.deleteAll(PuzzleRecord.class);
+                PuzzleRecord item = new PuzzleRecord(time + "", countSteps, date + "");
+                item.save();
             }
         }}
     });
